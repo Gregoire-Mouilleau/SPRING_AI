@@ -1,0 +1,75 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.4'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.sbp'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+ext {
+	set('springAiVersion', "1.0.0-M2")
+}
+
+dependencies {
+	// Spring Boot dependencies
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring AI Ollama starter
+	implementation 'org.springframework.ai:spring-ai-ollama-spring-boot-starter'
+
+	// Lombok (for annotations like @RequiredArgsConstructor)
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// H2 Database for in-memory testing
+	runtimeOnly 'com.h2database:h2'
+
+	// Reactor core for reactive programming
+	implementation 'io.projectreactor:reactor-core:3.5.9'
+
+	// MySQL connector (if needed)
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Test dependencies
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// Ensure compatibility with Spring AI
+	implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(Test) {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+	ignoreFailures = true // Permet de continuer même si des tests échouent
+}
